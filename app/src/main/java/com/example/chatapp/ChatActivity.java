@@ -36,6 +36,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
+import com.theartofdev.edmodo.cropper.CropImage;
 
 import org.w3c.dom.Text;
 
@@ -107,7 +108,7 @@ public class ChatActivity extends AppCompatActivity {
         mMessagesList.setLayoutManager(mLinearLayout);
         mMessagesList.setAdapter(mAdapter);
         //Image Storage
-        mImageStorage = FirebaseStorage.getInstance().getReference();
+        mImageStorage = FirebaseStorage.getInstance().getReference().child("Images");
 
         loadMessages();
 
@@ -174,18 +175,7 @@ public class ChatActivity extends AppCompatActivity {
                 sendMessage();
             }
         });
-        mChatAddBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                Intent galleryIntent = new Intent();
-                galleryIntent.setType("images/*");
-                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(galleryIntent,GALLERY_PICK);
-
-
-            }
-        });
 
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -196,64 +186,89 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
+        mChatAddBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent gallery_intent = new Intent();
+                gallery_intent.setType("images/*");
+                gallery_intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(gallery_intent,GALLERY_PICK);
+            }
+        });
 
 
     }
 
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==GALLERY_PICK && resultCode == RESULT_OK) {
             Uri imageUri = data.getData();
-            final String current_user_ref = "messages/" + mCurrentUserId+ "/" + mChatUSer;
-            final String chat_user_ref = "messages/" + mChatUSer+ "/" +mCurrentUserId;
-            DatabaseReference user_message_push = mRootRef.child("messages")
-                    .child(mCurrentUserId).child(mChatUSer).push();
-            final String push_id= user_message_push.getKey();
-            final StorageReference filepath = mImageStorage.child("message_images").child(push_id+".jpg");
-            Task<Uri> urlTask = filepath.putFile(imageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                @Override
-                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                    if(!task.isSuccessful()){
-                        throw task.getException();
-                    }
-                    return filepath.getDownloadUrl();
-                }
-            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                @Override
-                public void onComplete(@NonNull Task<Uri> task) {
-                    if (task.isSuccessful()) {
-                        Uri downloadUri = task.getResult();
-                        String d = downloadUri.toString();
-
-                        Map messageMap= new HashMap();
-                        messageMap.put("message",d);
-                        messageMap.put("seen",false);
-                        messageMap.put("type","image");
-                        messageMap.put("time",ServerValue.TIMESTAMP);
-                        messageMap.put("from",mCurrentUserId);
-
-                        Map messageUserMap = new HashMap();
-                        messageUserMap.put(current_user_ref+"/"+push_id,messageMap);
-                        messageUserMap.put(chat_user_ref+"/"+push_id,messageMap);
-                        mChatMessageView.setText("");
-                        mRootRef.updateChildren(messageUserMap, new DatabaseReference.CompletionListener() {
-                            @Override
-                            public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
-                                if(databaseError !=null) {
-                                    Log.d("CHAT LOG", databaseError.getMessage().toString());
-                                }
-                            }
-                        });
-
-                    }
-                }
-            });
+            //crop image
+            CropImage.activity(imageUri).setAspectRatio(1, 1).start(this);
 
         }
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
 
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            //CropImage.activity(result).setAspectRatio(1, 1).start(this);
+
+            if (resultCode == RESULT_OK) {
+
+                final Uri resultUri = result.getUri();
+                final String current_user_ref = "messages/" + mCurrentUserId + "/" + mChatUSer;
+                final String chat_user_ref = "messages/" + mChatUSer + "/" + mCurrentUserId;
+                DatabaseReference user_message_push = mRootRef.child("messages")
+                        .child(mCurrentUserId).child(mChatUSer).push();
+                final String push_id = user_message_push.getKey();
+                final StorageReference filepath = mImageStorage.child("message_images").child(push_id + ".jpg");
+                Task<Uri> urlTask = filepath.putFile(resultUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                    @Override
+                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+                        return filepath.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()) {
+                            Uri downloadUri = task.getResult();
+                            String d = downloadUri.toString();
+
+                            Map messageMap = new HashMap();
+                            messageMap.put("message", d);
+                            messageMap.put("seen", false);
+                            messageMap.put("type", "image");
+                            messageMap.put("time", ServerValue.TIMESTAMP);
+                            messageMap.put("from", mCurrentUserId);
+
+                            Map messageUserMap = new HashMap();
+                            messageUserMap.put(current_user_ref + "/" + push_id, messageMap);
+                            messageUserMap.put(chat_user_ref + "/" + push_id, messageMap);
+                            mChatMessageView.setText("");
+                            mRootRef.updateChildren(messageUserMap, new DatabaseReference.CompletionListener() {
+                                @Override
+                                public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                                    if (databaseError != null) {
+                                        Log.d("CHAT LOG", databaseError.getMessage().toString());
+                                    }
+                                }
+                            });
+
+                        }
+                    }
+                });
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+
+            }
+        }
     }
+
+
+
     private void loadMoreMessages(){
         DatabaseReference messageRef = mRootRef.child("messages").child(mCurrentUserId).child(mChatUSer);
 
