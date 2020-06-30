@@ -38,26 +38,16 @@
         android:textColor="#ffff"
         android:textSize="16sp" />
 
-    <TextView
-        android:id="@+id/profile_totalFriends"
-        android:layout_width="177dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/profile_status"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="100dp"
-        android:text="Total Friends"
-        android:textAlignment="center"
-        android:textColor="#ffff"
-        android:textSize="16sp" />
+
 
     <Button
         android:id="@+id/friend_request_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_below="@+id/profile_totalFriends"
+        android:layout_below="@+id/profile_status"
         android:text="Send Friend Request"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="60dp"
         android:textColor="#ffff"
         android:backgroundTint="@color/colorAccent"
         android:paddingRight="20dp"

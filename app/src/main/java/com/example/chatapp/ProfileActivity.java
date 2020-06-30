@@ -49,7 +49,7 @@ public class ProfileActivity extends AppCompatActivity {
         mProfileImage = (ImageView) findViewById(R.id.profile_image);
         mProfileName=(TextView) findViewById(R.id.profile_display_name);
         mProfileStatus= (TextView) findViewById(R.id.profile_status);
-        mProfileFriendsCount= (TextView) findViewById(R.id.profile_totalFriends);
+        //mProfileFriendsCount= (TextView) findViewById(R.id.profile_totalFriends);
         mProfileSendReqBtn = (Button) findViewById(R.id.friend_request_btn);
         mDeclineBtn = (Button) findViewById(R.id.decline_request_btn);
         mDeclineBtn.setVisibility(View.INVISIBLE);
