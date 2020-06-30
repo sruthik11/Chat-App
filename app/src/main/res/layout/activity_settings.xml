@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
+    tools:context=".SettingsActivity">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/settings_image"
+        android:layout_width="170dp"
+        android:layout_height="170dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="50dp"
+        android:src="@drawable/defaultuser1" />
+
+    <TextView
+        android:id="@+id/settings_display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/settings_image"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="-87dp"
+        android:text="Display Name"
+        android:textColor="#ffff"
+        android:textSize="36sp" />
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/settings_display"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="-50dp"
+        android:text="Hi there, I'm using Chat App"
+        android:textColor="#ffff"
+        android:textSize="24sp" />
+
+    <Button
+        android:id="@+id/settings_image_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/status"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="-300dp"
+        android:textColor="@color/colorPrimaryDark"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:backgroundTint="#ffff"
+        android:text="Change Image" />
+    <Button
+        android:id="@+id/status_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/settings_image_btn"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="-50dp"
+        android:textColor="#ffff"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:backgroundTint="@color/colorAccent"
+        android:text="Change Status" />
+
+</RelativeLayout>
